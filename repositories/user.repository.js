@@ -1,31 +1,16 @@
 import User from "../models/userModel.js";
-import { ConflictError, InternalServerError } from "../utils/errorUtils.js";
 
-export async function createUser(userData) {
+export async function findUserByEmail(email) {
+  return await User.findOne({ email });
+}
 
-  const{userName, email, password} = userData
-  console.log('userdata', userData, 'uname',userName, 'email>>',email, 'pass',password)
 
-  const userExist = await User.findOne({email});
-console.log('userExist>>>', userExist);
-  if (userExist) {
-    throw new ConflictError("user already exist with the given mail id");
-  }
+export async function createNewUser(userData) {
+  return await User.create(userData);
+}
 
-  const user = await User.create({
-    userName,
-    email,
-    password,
-  });
-
-  if (!user) {
-    throw new InternalServerError("User Registrantion failed, please try agian");
-  }
-
-  await user.save();
-  user.password = undefined;
-
-  return user;
+export async function findUserByIdAndFilter(userId) {
+  return await User.findById(userId).select("-password -refreshToken");
 }
 
 

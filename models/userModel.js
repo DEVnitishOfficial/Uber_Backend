@@ -31,8 +31,15 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["RIDER", "DRIVER"],
-      default: "RIDER",
+      enum: ["PASSENGER", "DRIVER"],
+      default: "PASSENGER",
+    },
+    location: {
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], default: [0, 0] }
+  },
+   refreshToken: {
+      type: String,
     },
   },
   {
@@ -48,16 +55,16 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods = {
-  generateJWTToken: function () {
+  generateJWTAccessToken: function () {
     return jwt.sign(
       {
         id: this._id,
         email: this.email,
         role: this.role,
       },
-      serverConfig.JWT_SECRET,
+      serverConfig.ACCESS_JWT_TOKEN_SECRET,
       {
-        expiresIn: serverConfig.JWT_EXPIRY,
+        expiresIn: serverConfig.ACCESS_JWT_TOKEN_EXPIRY,
       }
     );
   },
@@ -65,6 +72,18 @@ userSchema.methods = {
   comparePassword: async function (plainTextPassword) {
     return await bcrypt.compare(plainTextPassword, this.password);
   },
+
+  generateJWTRefreshToken : function () {
+  return jwt.sign(
+    {
+      id: this._id,
+    },
+    process.env.REFRESH_JWT_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_JWT_TOKEN_EXPIRY,
+    }
+  );
+}
 };
 
 const User = model('User',userSchema)

@@ -21,7 +21,14 @@ const createUserSchema = z.object({
     .min(8, "password must be at least eight characters"),
 
   // role:
-  role: z.enum(["RIDER", "DRIVER"]).default("RIDER").optional(),
+  role: z.enum(["PASSENGER", "DRIVER"]).default("PASSENGER").optional(),
+
+  location: z.object({
+    type: z.enum(['Point']).default('Point'),
+    coordinates: z.array(z.number()).default([0, 0]),
+  }).optional(),
+  
+  refreshToken: z.string().optional(),
 });
 
 

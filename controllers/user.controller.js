@@ -11,10 +11,6 @@ const cookieOptions = {
 export async function createUserController(req, res) {
 
   const userResponse = await createUserService(req.body);
-  console.log('userResponse',userResponse)
-
-  const token = await userResponse.generateJWTToken();
-  res.cookie("token", token, cookieOptions);
 
   res.status(StatusCodes.CREATED).json({
     success: true,
