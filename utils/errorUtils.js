@@ -44,10 +44,24 @@ class ConflictError extends AppError {
   }
 }
 
+class BadRequestError extends AppError {
+  constructor(message = "Bad Request") {
+    super(message, 400);
+  }
+}
+
+class ForbiddenError extends AppError {
+  constructor(message = "Forbidden") {
+    super(message, 403);
+  }
+}
+
 export {
   AppError,
   InternalServerError,
   NotFoundError,
   UnauthorizedError,
-  ConflictError
+  ConflictError,
+  BadRequestError,
+  ForbiddenError,
 };

@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { createUserService } from "../services/user.service.js";
+import { createUserService, loginUserService } from "../services/user.service.js";
 
 
 const cookieOptions = {
@@ -18,4 +18,27 @@ export async function createUserController(req, res) {
     data: userResponse,
   });
 
+}
+
+export async function loginUserController(req, res) {
+
+  const {loggedInUser, accessToken, refreshToken} = await loginUserService(req.body)
+
+    const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  res.cookie("accessJWTToken", accessToken, options);
+  res.cookie("refreshJWTToken", refreshToken, options);
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "User logged in successfully",
+    data: {
+      user: loggedInUser,
+      accessToken,
+      refreshToken
+    },
+  });
 }

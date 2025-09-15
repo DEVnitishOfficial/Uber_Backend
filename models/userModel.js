@@ -40,6 +40,7 @@ const userSchema = new Schema(
   },
    refreshToken: {
       type: String,
+      select : false
     },
   },
   {
@@ -69,7 +70,7 @@ userSchema.methods = {
     );
   },
 
-  comparePassword: async function (plainTextPassword) {
+  isPasswordCorrect: async function (plainTextPassword) {
     return await bcrypt.compare(plainTextPassword, this.password);
   },
 
@@ -78,9 +79,9 @@ userSchema.methods = {
     {
       id: this._id,
     },
-    process.env.REFRESH_JWT_TOKEN_SECRET,
+    serverConfig.REFRESH_JWT_TOKEN_SECRET,
     {
-      expiresIn: process.env.REFRESH_JWT_TOKEN_EXPIRY,
+      expiresIn: serverConfig.REFRESH_JWT_TOKEN_EXPIRY,
     }
   );
 }

@@ -11,9 +11,7 @@ const createUserSchema = z.object({
 
   email: z.string({
     required_error: "Email is required",
-  })
-    .email("please enter a valid email address")
-    .toLowerCase(),
+  }),
 
   password: z.string({
     required_error: "password is required",
@@ -31,7 +29,18 @@ const createUserSchema = z.object({
   refreshToken: z.string().optional(),
 });
 
+const loginUserSchema = z.object({
+  email: z.string({
+    required_error: "Email is required",
+  }),
+
+  password: z.string({
+    required_error: "password is required",
+  })
+    .min(8, "password must be at least eight characters"),
+});
+
 
 const userUpdateSchema = createUserSchema.partial();
 
-export { createUserSchema, userUpdateSchema };
+export { createUserSchema, userUpdateSchema, loginUserSchema };
