@@ -4,6 +4,9 @@ import {
   createNewUser,
   findUserById,
   findUserForTokenGeneration,
+  updateUserById,
+  getAllUsers,
+  deleteUserById,
 } from "../repositories/user.repository.js";
 
 import { ConflictError, InternalServerError, NotFoundError, BadRequestError, UnauthorizedError } from "../utils/errorUtils.js";
@@ -86,3 +89,26 @@ export async function refreshAccessTokenService(IncomingRefreshToken) {
   return {accessToken, refreshToken}
 }
 
+export async function getAllUsersService(){
+  const users = await getAllUsers();
+  if (!users) {
+    throw new InternalServerError("Failed to retrieve users");
+  }
+  return users;
+}
+
+export async function updateUserService(userId, updateInfo){
+  const updatedUser = await updateUserById(userId, updateInfo);
+  if (!updatedUser) {
+    throw new InternalServerError("Failed to update user");
+  }
+  return updatedUser;
+}
+
+export async function deleteUserService(userId){
+  const deletedUser = await deleteUserById(userId);
+  if (!deletedUser) {
+    throw new InternalServerError("Failed to delete user");
+  }
+  return deletedUser;
+}

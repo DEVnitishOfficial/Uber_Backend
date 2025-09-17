@@ -16,5 +16,16 @@ export async function findUserForTokenGeneration(userId) {
   return await User.findById(userId).select("+password +refreshToken");
 }
 
+export async function getAllUsers(){
+  return await User.find({});
+}
+
+export async function updateUserById(userId, updateInfo){
+  return await User.findByIdAndUpdate(userId, updateInfo, {new : true});
+}
+
+export async function deleteUserById(userId){
+  return await User.findByIdAndDelete(userId);
+}
 
 

@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { createUserService, loginUserService, refreshAccessTokenService } from "../services/user.service.js";
+import { createUserService, deleteUserService, getAllUsersService, loginUserService, refreshAccessTokenService, updateUserService } from "../services/user.service.js";
 
 
 const options = {
@@ -38,7 +38,6 @@ export async function loginUserController(req, res) {
   });
 }
 
-
 export async function refreshAccessTokenController(req, res){
 
   // const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken;
@@ -59,3 +58,34 @@ export async function refreshAccessTokenController(req, res){
     });
 };
 
+export async function getAllUsersController(req, res) {
+  const users = await getAllUsersService();
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "Users retrieved successfully",
+    data: users,
+  });
+}
+
+export async function updateUserController(req, res) {
+  const userId = req.params.id;
+  const updateInfo = req.body;
+
+  const updatedUser = await updateUserService(userId, updateInfo);
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "User updated successfully",
+    data: updatedUser,
+  });
+}
+
+export async function deleteUserController(req, res) {
+  const userId = req.params.id;
+
+  const deletedUser = await deleteUserService(userId);
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "User deleted successfully",
+    data: deletedUser,
+  });
+}
