@@ -1,3 +1,4 @@
+import jwt, { decode } from 'jsonwebtoken'
 import {
   findUserForAuthentication,
   createNewUser,
@@ -6,26 +7,8 @@ import {
 } from "../repositories/user.repository.js";
 
 import { ConflictError, InternalServerError, NotFoundError, BadRequestError, UnauthorizedError } from "../utils/errorUtils.js";
-
-
-const generateAccesstokenAndRefreshtoken = async (userId) => {
-  try {
-    const user = await findUserForTokenGeneration(userId);
-    if (!user) {
-      throw new NotFoundError("User not found for token generation");
-    }
-    const accessToken = user.generateJWTAccessToken();
-    const refreshToken = user.generateJWTRefreshToken();
-
-
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
-
-    return { accessToken, refreshToken };
-  } catch (error) {
-    throw new InternalServerError("Token generation failed", error.message);
-  }
-};
+import { serverConfig } from '../config/index.js';
+import { generateAccesstokenAndRefreshtoken } from '../utils/generateAccesstokenAndRefreshtoken.js';
 
 export async function createUserService(userData) {
   const { email } = userData;
@@ -58,6 +41,7 @@ export async function loginUserService(userData){
 
     const user = await findUserForAuthentication(email)
 
+
     if(!user){
         throw new NotFoundError("user does not exist with the given email")
     }
@@ -76,3 +60,29 @@ export async function loginUserService(userData){
     return {loggedInUser, accessToken, refreshToken};
 
 }
+
+export async function refreshAccessTokenService(IncomingRefreshToken) {
+  if (!IncomingRefreshToken) {
+    throw new UnauthorizedError("Unauthorised request, incorrect refresh token");
+  }
+
+  const decodedToken = jwt.verify(IncomingRefreshToken, serverConfig.REFRESH_JWT_TOKEN_SECRET);
+  if (!decodedToken || !decodedToken.id) {
+      throw new UnauthorizedError("Invalid refresh token");
+  }
+
+  const user = await findUserForTokenGeneration(decodedToken.id);
+  if (!user) {
+    throw new UnauthorizedError("Invalid refresh token, unable to find user");
+  }
+
+  // Check if the incoming token matches the one in the database
+  if (IncomingRefreshToken !== user.refreshToken) {
+    throw new UnauthorizedError("Refresh token either expired or used");
+  }
+  
+  const {accessToken, refreshToken} = await generateAccesstokenAndRefreshtoken(user.id)
+ 
+  return {accessToken, refreshToken}
+}
+
