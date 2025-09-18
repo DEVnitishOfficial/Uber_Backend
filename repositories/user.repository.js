@@ -1,4 +1,4 @@
-import User from "../models/userModel.js";
+import User from "../models/user.model.js";
 
 export async function findUserForAuthentication(email) {
   return await User.findOne({ email }).select("+password +refereshToken");
