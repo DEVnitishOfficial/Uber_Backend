@@ -40,7 +40,21 @@ const loginUserSchema = z.object({
     .min(8, "password must be at least eight characters"),
 });
 
+const userUpdateSchema = z.object({
+  userName: z.string().min(5).max(50).optional(),
+  email: z.string().email().optional(),
+  location: z.object({
+    type: z.enum(['Point']).default('Point'),
+    coordinates: z.array(z.number()).default([0, 0]),
+  }).optional(),
 
-const userUpdateSchema = createUserSchema.partial();
+  longitude: z.number({
+    invalid_type_error: "Longitude must be a number",
+  }).optional(),
+  latitude: z.number({
+    invalid_type_error: "Latitude must be a number",
+  }).optional(),
+
+});
 
 export { createUserSchema, userUpdateSchema, loginUserSchema };

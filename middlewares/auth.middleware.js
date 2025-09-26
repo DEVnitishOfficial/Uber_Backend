@@ -20,12 +20,10 @@ export async function verifyJwt(req, _, next) {
       serverConfig.ACCESS_JWT_TOKEN_SECRET
     );
 
-    console.log("see the decoded token", decodedToken);
 
     const user = await User.findById(decodedToken?.id).select(
       "-password -refreshToken"
     );
-    console.log("user after decoding token", user);
 
     if (!user) {
       throw new UnauthorizedError("Invalid access token");

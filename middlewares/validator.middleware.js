@@ -4,14 +4,14 @@ export const validateRequestBody = (schema) => {
             console.log("validate the request body")
             await schema.parseAsync(req.body)
             console.log('request body is validated succcessfully');
+            next();
         }catch(error){
             console.log("request body is invalid")
             res.status(400).json({
             success:false,
             message: "invalid schema",
-            error:error
+            error:error.message
            })
         }
-        next();
     }
 }
