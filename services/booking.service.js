@@ -1,7 +1,8 @@
 import { serverConfig } from "../config/index.js";
 import { createBookingRepository, deleteBookingByIdRepository, findBookingByIdRepository, getAllBookingsRepository, updateBookingByIdRepository } from "../repositories/booking.repository.js";
 import haversineDistance from "../utils/distance.js";
-import { BadRequestError, InternalServerError } from "../utils/errorUtils.js";
+import { BadRequestError, InternalServerError, NotFoundError } from "../utils/errorUtils.js";
+import { findNearByDriverInRedisDB } from "../utils/helpers/redis.service.js";
 
 export async function createBookingService(source, destination, passengerId) {
   const distance = haversineDistance(
@@ -35,6 +36,27 @@ export async function createBookingService(source, destination, passengerId) {
     throw new InternalServerError("Booking creation failed, please try again");
   }
   return newBooking;
+}
+
+export async function findNearByDriverService(passangerLocation, radiusInKM){
+
+    const longitude = passangerLocation.longitude
+    const latitude = passangerLocation.latitude
+
+    if(!longitude || !latitude || !radiusInKM){
+      throw new NotFoundError("Every field longitude, latitude and radius required")
+    }
+
+    const nearByDriver = await findNearByDriverInRedisDB(longitude, latitude, radiusInKM);
+
+    console.log('nearbydriver in service layer',nearByDriver);
+
+    if(!nearByDriver){
+      throw new NotFoundError("Nearby drivers not found")
+    }
+
+    return nearByDriver
+
 }
 
 export async function getBookingByIdService(bookingId) {

@@ -1,29 +1,41 @@
 import { StatusCodes } from "http-status-codes";
-import { NotFoundError } from "../utils/errorUtils.js";
+import { InternalServerError, NotFoundError } from "../utils/errorUtils.js";
 import {
   createBookingService,
   deleteBookingByIdService,
+  findNearByDriverService,
   getAllBookingsService,
   getBookingByIdService,
   updateBookingByIdService,
 } from "../services/booking.service.js";
+import { serverConfig } from "../config/index.js";
 
 export async function createBookingController(req, res) {
+
   const { source, destination } = req.body;
   const passengerId = req.userWithAccessToken.id;
-  const bookingResponse = await createBookingService(
-    source,
-    destination,
-    passengerId
-  );
-  if (!bookingResponse) {
-    throw new NotFoundError("Booking creation failed");
+
+  const [bookingResponse, nearByDrivers] = await Promise.all([
+    createBookingService(source, destination,passengerId),
+    findNearByDriverService(source, serverConfig.RADIUS)
+  ])
+
+  if(!bookingResponse){
+    throw new InternalServerError("Failed to create booking, please try again.")
   }
-  res.status(StatusCodes.CREATED).json({
-    success: true,
-    message: "Booking created successfully",
-    data: bookingResponse,
-  });
+
+  if (!nearByDrivers || nearByDrivers.length === 0) {
+      throw new NotFoundError('No drivers available near your location.');
+  }
+
+  return res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: 'Booking created and find nearby drivers successfully',
+      data: {
+        booking: bookingResponse,
+        notifiedDriversCount: nearByDrivers.length,
+      },
+    });
 }
 
 export async function getBookingByIdController(req, res) {
