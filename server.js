@@ -5,10 +5,12 @@ import connectToDB from './config/dbConnection.js'
 import v1Router from './routers/v1/index.router.js';
 import v2Router from './routers/v2/index.router.js';
 import { genericErrorHandler } from './middlewares/error.middleware.js';
+import cors from 'cors'
 
 
 const app = express();
 
+app.use(cors())
 app.use(express.json());
 
 
