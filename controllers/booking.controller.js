@@ -10,6 +10,7 @@ import {
 } from "../services/booking.service.js";
 import { serverConfig } from "../config/index.js";
 import axios from "axios";
+import { storeNotifiedDriversInRedis } from "../utils/helpers/redis.service.js";
 
 export async function createBookingController(req, res) {
 
@@ -42,6 +43,10 @@ export async function createBookingController(req, res) {
             });
 
 
+            await storeNotifiedDriversInRedis(bookingResponse._id, driverIds)
+            console.log("Notified all drivers successfully>>>", notificationResponse.data);
+
+
         if(!bookingResponse){
             throw new InternalServerError("Failed to create booking, please try again.")
         }
@@ -52,10 +57,11 @@ export async function createBookingController(req, res) {
 
   return res.status(StatusCodes.CREATED).json({
       success: true,
-      message: 'Booking created and find nearby drivers successfully',
+      message: 'Booking created and Notified nearby drivers successfully',
       data: {
         booking: bookingResponse,
         nearByDriversCount: nearByDrivers.length,
+        driverNotificationResponse : notificationResponse.data.data
       },
     });
 }

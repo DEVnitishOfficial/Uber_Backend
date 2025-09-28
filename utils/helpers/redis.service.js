@@ -37,3 +37,20 @@ export async function findNearByDriverInRedisDB(longitude, latitude, radiusInKM)
 
     return nearbyDrivers
 }
+
+// store notified driver for particular booking id, here bookingId is used only as key
+export async function storeNotifiedDriversInRedis(bookingId, driverIds){
+
+        for (const driverId of driverIds) {
+          const addedCount = await redisClient.sAdd(`Notified_Drivers:${bookingId}`, driverId);
+          // sAdd : create a unique set with the name of "Notified_Drivers" and store the unique driverId
+          console.log(`Added driver with driverId: ${driverId} in redis for bookingId ${bookingId}, count of uniqe driverId: ${addedCount}`);
+          return addedCount
+        }
+}
+
+// redis sMembers return all the unique items which is stored under a unique key.
+export async function getNearByNotifiedDriversFromRedis(bookingId){
+    const nearbyDrivers = await redisClient.sMembers(`Notified_Drivers:${bookingId}`);
+    return nearbyDrivers;
+}
