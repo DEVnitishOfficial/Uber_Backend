@@ -24,7 +24,6 @@ export async function createBookingController(req, res) {
 
   const driverIds = nearByDrivers.map((indvDriver) => indvDriver[0])
 
-  console.log('see booking resp', bookingResponse);
 
         const rideInfo = {
             source,
@@ -44,7 +43,6 @@ export async function createBookingController(req, res) {
 
 
             await storeNotifiedDriversInRedis(bookingResponse._id, driverIds)
-            console.log("Notified all drivers successfully>>>", notificationResponse.data);
 
 
         if(!bookingResponse){

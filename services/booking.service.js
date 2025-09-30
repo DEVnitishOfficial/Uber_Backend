@@ -1,5 +1,5 @@
 import { serverConfig } from "../config/index.js";
-import { createBookingRepository, deleteBookingByIdRepository, findBookingByIdRepository, getAllBookingsRepository, updateBookingByIdRepository } from "../repositories/booking.repository.js";
+import { createBookingRepository, deleteBookingByIdRepository, findBookingByIdRepository, getAllBookingsRepository, updateBookingByIdRepository, updateBookingStatusRepository } from "../repositories/booking.repository.js";
 import haversineDistance from "../utils/distance.js";
 import { BadRequestError, InternalServerError, NotFoundError } from "../utils/errorUtils.js";
 import { findNearByDriverInRedisDB } from "../utils/helpers/redis.service.js";
@@ -58,6 +58,19 @@ export async function findNearByDriverService(passangerLocation, radiusInKM){
     return nearByDriver
 
 }
+
+export async function assignDriverToPassangerService(bookingId, driverId){
+
+  const updatedBooking = await updateBookingStatusRepository(bookingId, driverId, "confirmed")
+
+  
+  if(!updatedBooking){
+    throw new NotFoundError("Unable to update the booking status or already confirmed")
+  }
+
+  return updatedBooking
+}
+
 
 export async function getBookingByIdService(bookingId) {
   const booking = await findBookingByIdRepository(bookingId);

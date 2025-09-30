@@ -19,3 +19,11 @@ export async function getAllBookingsRepository() {
 export async function deleteBookingByIdRepository(bookingId) {
   return await Booking.findByIdAndDelete(bookingId);
 }
+
+export async function updateBookingStatusRepository(bookingId, driverId, status){
+    return await Booking.findOneAndUpdate(
+      { _id: bookingId, status: 'pending' },
+      { driver: driverId, status },
+      { new: true }
+    );
+}
